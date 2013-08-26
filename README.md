@@ -11,6 +11,16 @@
 - ideally fulcrum be able to edit attributres off shapefile polygon you're currently in, 
 - if not R script to match data points collected for each paddock to polygon - update history and 
 
+- tilemill can import shapefiles from postgis - with custom styling e.g. color for last weeks growth.
+
+
+### WATCH projcection!!
+- use projected in qgis to get area in metres.
+- UTM zone 55 east of ~ lorne = JUC
+- UTM zone 54 west of lorne - WARRNAMBOOL
+- http://www.fossworkflowguides.com/gis/tutorials/00007/
+- of GDA94 - http://www.dse.vic.gov.au/property-titles-and-maps/geodesy/geocentric-datum-of-australia-gda
+
 ## deliverey
 - pretty displaying?? leaflet js library via slidify/shiny webapp.
 - scrape pasture satellite data - update padocks automagically.
