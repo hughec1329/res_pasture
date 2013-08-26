@@ -20,14 +20,20 @@
 - then how store multiple repeated observations for each paddock?? PostGIS?
 
 ## DB design
-- RDB design - table for each cocky w each paddock as polygon in vector layer?
-- paddock observations:
+- DB design - 
+1.	farmer: 
+
+fid (PKEY)  | name | location (spatial)  | farm poly (union of paddock poly??) | total area (ST_area from paddock poly) | notes
+
+2.	paddock:
+
+fid (PKEY) | pid (PKEY) | poly(spatial) | area (ST_area) | recent cover (most recent observation from 3.) | recent notes
+
+3.	observations:
 
 FarmerID  |  paddockID  |  date  |  level  |  notes
---------------|-----------------|--------|---------|---------
-10
+------------
 
-etc.
 
-- unique - foreign key - paste(farmerID,paddockID) - 
+- unique - foreign key - paste(farmerID,paddockID) ?? 
 
