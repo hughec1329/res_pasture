@@ -29,6 +29,10 @@
 - http://www.ga.gov.au/webtemp/image_cache/GA20950.pdf
 - then how store multiple repeated observations for each paddock?? PostGIS?
 
+#POSTGIS
+- inital install via http://www.paolocorti.net/2008/01/30/installing-postgis-on-ubuntu/ - user 
+- http://wiki.openstreetmap.org/wiki/PostGIS/Installation#Ubuntu_12.04_LTS
+
 ## DB design
 - DB design - 
 1.	farmer: 
@@ -49,3 +53,11 @@ FarmerID  |  paddockID  |  date  |  level  |  notes
 
 - unique - foreign key - paste(farmerID,paddockID) ?? 
 
+## Drawing maps: tile mill
+- can script -/usr/share/tilemill/index.js export --help
+- load standard cartoCSS - from ~/Documents/MapBox/project/farms
+- but use postgis layer?? 
+
+### styling
+- best with transperent polygon and no bakcgrond - then can have underlayer of gogle earth
+- style.mss to have conditional color and labels of paddock id, (paddock cover)
