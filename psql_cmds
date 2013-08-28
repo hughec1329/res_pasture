@@ -1,0 +1,44 @@
+# create farmer table
+
+CREATE TABLE farmers (fid int not null primary key,
+name varchar(50),
+address varchar(50),
+area int,
+notes varchar(100))
+;
+
+CREATE TABLE paddocks (fid int references farmers(fid) not null,
+pid int not null primary key,
+area int,
+cover int,
+notes varchar(100))
+;
+
+CREATE TABLE observations (fid int references farmers(fid) not null,
+pid int references paddocks(pid) not null,
+cover int,
+notes varchar(100))
+;
+
+INSERT INTO 	farmers (fid,name,address,area,notes)
+		values (1003,'trevor and leigh indian', '97 ocean bvld, Jan Juc', 4000, 'useless dog called doug');
+
+SELECT * FROM farmers;	
+
+INSERT INTO 	paddocks	(fid, pid, area, cover, notes)
+		values		(1003, 003, 4.3,2400,'creek paddock');
+
+INSERT INTO 	observations 	(fid, pid, cover, notes)
+		values		(1003, 003, 2400, 'needs spraying');
+
+# in shell
+createlang plpgsql farms
+psql farms < /usr/share/postgresql/9.1/contrib/postgis-2.0/postgis.sql
+psql farms < /usr/share/postgresql/9.1/contrib/postgis-2.0/spatial_ref_sys.sql
+
+
+ALTER TABLE farmers ADD COLUMN the_geom geometry;
+
+# to get shapefile from qgis into postgis - need to sort out shapefiles projection as SRI code.
+shp2pgsql -s 4326 -d ~/mapping/farm_toJIZZ | psql -d farms
+
