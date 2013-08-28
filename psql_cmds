@@ -45,3 +45,6 @@ shp2pgsql -s 4326 -d ~/mapping/farm_toJIZZ | psql -d farms
 # merge two tables to find pid from survey results!!! DONE!
 SELECT p.fid, p.pid, s.score FROM farm_tojizz p, survey s WHERE ST_CONTAINS(p.geom,s.geom);
 
+# descending order on cover.
+SELECT p.fid, p.pid, s.score as cover FROM farm_tojizz p, survey s WHERE ST_CONTAINS(p.geom,s.geom) ORDER BY cover DESC;
+
