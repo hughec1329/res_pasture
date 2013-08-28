@@ -42,3 +42,6 @@ ALTER TABLE farmers ADD COLUMN the_geom geometry;
 # to get shapefile from qgis into postgis - need to sort out shapefiles projection as SRI code.
 shp2pgsql -s 4326 -d ~/mapping/farm_toJIZZ | psql -d farms
 
+# merge two tables to find pid from survey results!!! DONE!
+SELECT p.fid, p.pid, s.score FROM farm_tojizz p, survey s WHERE ST_CONTAINS(p.geom,s.geom);
+
