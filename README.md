@@ -30,8 +30,7 @@
 - then how store multiple repeated observations for each paddock?? PostGIS?
 
 #POSTGIS
-- inital install via http://www.paolocorti.net/2008/01/30/installing-postgis-on-ubuntu/ - user 
-- http://wiki.openstreetmap.org/wiki/PostGIS/Installation#Ubuntu_12.04_LTS
+- set up succesfully alahttps://the-free-qgis-training-manual.readthedocs.org/en/latest/postgis/index.html
 
 ## DB design
 - DB design - 

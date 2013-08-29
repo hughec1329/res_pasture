@@ -14,7 +14,9 @@ cover int,
 notes varchar(100))
 ;
 
-CREATE TABLE observations (fid int references farmers(fid) not null,
+CREATE TABLE observations (
+date TIMESTAMP WITH TIME ZONE not null,
+fid int references farmers(fid) not null,
 pid int references paddocks(pid) not null,
 cover int,
 notes varchar(100))
@@ -47,4 +49,14 @@ SELECT p.fid, p.pid, s.score FROM farm_tojizz p, survey s WHERE ST_CONTAINS(p.ge
 
 # descending order on cover.
 SELECT p.fid, p.pid, s.score as cover FROM farm_tojizz p, survey s WHERE ST_CONTAINS(p.geom,s.geom) ORDER BY cover DESC;
+SELECT p.fid, p.pid, s.cover FROM farm_tojizz p, survey s WHERE ST_CONTAINS(p.geom,ST_Transform(s.geom,4326)) ORDER BY cover DESC;
 
+############3
+## form R
+##############
+
+# add geog column to obs
+ALTER TABLE obs ADD COLUMN the_geog GEOGRAPHY;
+
+#  read geog from string
+UPDATE obs SET geography = ST_GeogFromText('POINT(' || lon || ' ' || lat || ')')
