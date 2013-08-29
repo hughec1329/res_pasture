@@ -10,13 +10,11 @@
 library(RCurl)
 library(rjson)
 library(RPostgreSQL)
-
 id = '01c1d934-696f-461d-b486-a7eaec126a8c' # form id for 'survey' i
 # get from curl -H "X-ApiToken: c8490d70abe32c668f9aec635cca036aae1f5a13fbc47cdcfae422f1f0f2b930" https://api.fulcrumapp.com/api/v2/forms
 dat = as.numeric(as.POSIXct(Sys.Date(),tz = 'UTC') - 10*60*60) # get data collected since midnight 
 urll = paste('https://api.fulcrumapp.com/api/v2/records','?updated_since=',dat,'&form_id=', id,sep = "")
 header = c('X-ApiToken'  =  'c8490d70abe32c668f9aec635cca036aae1f5a13fbc47cdcfae422f1f0f2b930')
-
 ret = getURL(urll, httpheader = header)
 js = fromJSON(ret)
 res = sapply(1:length(js$records),function(i) { 
@@ -31,11 +29,9 @@ res = sapply(1:length(js$records),function(i) {
 rest = data.frame(t(res),stringsAsFactors = F)
 rest$dat = as.POSIXct(as.numeric(rest$dat),origin = "1970-01-01")
 rest$cover = as.numeric(rest$cover)
-
 # connect to postgis
 drv <- dbDriver("PostgreSQL")
 con <- dbConnect(drv, dbname="farms")
-
 # write table to postgis
 dbWriteTable(con,'obs',rest,row.names = F)
 # add spatial points
@@ -44,6 +40,13 @@ dbGetQuery(con,"UPDATE obs SET the_geom = ST_GeometryFromText('POINT(' || lon ||
 dbGetQuery(con,'ALTER TABLE obs DROP COLUMN lat;')
 dbGetQuery(con,'ALTER TABLE obs DROP COLUMN lon;')
 # do spatial join.
-out = dbGetQuery(con, 'SELECT p.fid, p.pid, s.cover, s.comment FROM farm_tojizz p, obs s WHERE ST_INTERSECTS(p.geom,s.the_geom) ORDER BY cover DESC;')
-
+out = dbGetQuery(con, 'SELECT s.dat as date, p.fid, p.pid, s.cover, s.notes FROM farm_tojizz p, obs s WHERE ST_INTERSECTS(p.geom,s.the_geom) ORDER BY pid;')
+write.csv(out,file = paste(Sys.Date(),unique(out$fid), 'obs', sep = '_'),row.names = F)
+dbGetQuery(con, 'INSERT INTO observations SELECT s.dat as date, p.fid, p.pid, s.cover, s.notes, s.the_geom FROM paddocks p, obs s WHERE ST_INTERSECTS(p.geom,s.the_geom) ORDER BY pid;')
 dbGetQuery(con, 'DROP TABLE obs')
+#check results - need to do this before write DB?
+print(ifelse(nrow(out) == nrow(rest),paste('succesfully imported',nrow(rest),'paddock observations'), 'WARNING: some paddocks not matched'))
+
+
+# drops rows that dont have geolocation - try nearest neighbour.
+# allows duplicate observations - stop if same day??

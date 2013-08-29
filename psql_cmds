@@ -11,15 +11,17 @@ CREATE TABLE paddocks (fid int references farmers(fid) not null,
 pid int not null primary key,
 area int,
 cover int,
-notes varchar(100))
+notes varchar(100),
+geom geography)
 ;
 
 CREATE TABLE observations (
 date TIMESTAMP WITH TIME ZONE not null,
 fid int references farmers(fid) not null,
-pid int references paddocks(pid) not null,
+pid int references pads(pid) not null,
 cover int,
-notes varchar(100))
+notes varchar(100),
+the_geom geography)
 ;
 
 INSERT INTO 	farmers (fid,name,address,area,notes)
@@ -60,3 +62,26 @@ ALTER TABLE obs ADD COLUMN the_geog GEOGRAPHY;
 
 #  read geog from string
 UPDATE obs SET geography = ST_GeogFromText('POINT(' || lon || ' ' || lat || ')')
+
+# proper spatial join - intersect allows geom and geog merge, contains only geom
+SELECT o.dat as date, p.fid, p.pid,o.cover, o.notes, o.the_geom FROM pads p, obs o WHERE ST_INTERSECTS(p.geom, o.the_geom);
+
+
+#####
+## fix table structure
+#
+#####
+
+CREATE TABLE pads AS SELECT cast(fid as int), cast(pid as int),area,cast(cover as int), notes, geom from farm_tojizz ;
+
+# add fkey constraints
+ALTER TABLE pads ADD FOREIGN KEY(fid) REFERENCES farmers(fid);
+
+# add pkey constraints
+ALTER TABLE pads ADD PRIMARY KEY(pid);
+
+
+
+# put obs into observations
+INSERT INTO observations SELECT o.dat as date, p.fid, p.pid,o.cover, o.notes, o.the_geom FROM paddocks p, obs o WHERE ST_INTERSECTS(p.geom, o.the_geom);
+
