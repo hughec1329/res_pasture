@@ -14,12 +14,31 @@
 - tilemill can import shapefiles from postgis - with custom styling e.g. color for last weeks growth.
 
 
-### WATCH projcection!!
+# WATCH projcection!!
+- must be in same projection for ST_fn
+- choice of geography or geometry spatial column in pg
+- limited number of fn for use on geography column (ST_INTERSECT)
+- most useful info from following websites
+- http://blog.daniel-azuma.com/archives/164
+- http://workshops.opengeo.org/postgis-intro/geography.html
+
+## geographic - on a globe!
+- lat long - WSG84
+- geographic column types in PostGIS
+- SRID 4326 = EPSG - plate caree projection - flatten sphere to 
+- units - degrees - cant measure are accurately, harder calucluations as sround a sphere
+
+## projected - cartesian - FLAT!
 - use projected in qgis to get area in metres.
-- UTM zone 55 east of ~ lorne = JUC
-- UTM zone 54 west of lorne - WARRNAMBOOL
 - http://www.fossworkflowguides.com/gis/tutorials/00007/
-- of GDA94 - http://www.dse.vic.gov.au/property-titles-and-maps/geodesy/geocentric-datum-of-australia-gda
+- 28355 - UTM zone 55 east of ~ lorne = JUC
+- 28354 - UTM zone 54 west of lorne - WARRNAMBOOL
+- 3111 - all vic- http://www.dse.vic.gov.au/property-titles-and-maps/geodesy/geocentric-datum-of-australia-gda
+- 3577 - all australia
+- look up at: http://spatialreference.org/ref/epsg/3111/
+
+### proj4 string- datum
+- math equations used to flatten ellipsoid - GDA94 & AGD66 used for AUS, main diff is centre of earth.
 
 ## deliverey
 - pretty displaying?? leaflet js library via slidify/shiny webapp.

@@ -1,3 +1,28 @@
+# postgrees and postgis install and setup notes
+# 20130830 HCrockford
+#
+
+# install postgres
+sudo apt-get install postgresql-9.1 postgis postgresql-9.1-postgis
+# get access to db
+sudo su postgres
+# create user
+createuser -d -E -i -l -P -r -s timlinux
+
+
+#create templatea - from http://gis.stackexchange.com/questions/19432/why-does-postgis-installation-not-create-a-template-postgis
+
+sudo su postgres
+createdb template_postgis
+psql -d template_postgis -f /usr/share/postgresql/9.1/contrib/postgis-2.0/postgis.sql
+psql -d template_postgis -f /usr/share/postgresql/9.1/contrib/postgis-2.0/spatial_ref_sys.sql
+
+# # create DB using template to auto enable postgis
+# owne dby current user
+
+createdb farm -T template_postgis
+psql famrs
+
 # create farmer table
 
 CREATE TABLE farmers (fid int not null primary key,
@@ -65,6 +90,7 @@ UPDATE obs SET geography = ST_GeogFromText('POINT(' || lon || ' ' || lat || ')')
 
 # proper spatial join - intersect allows geom and geog merge, contains only geom
 SELECT o.dat as date, p.fid, p.pid,o.cover, o.notes, o.the_geom FROM pads p, obs o WHERE ST_INTERSECTS(p.geom, o.the_geom);
+# as obs is geography, geog only allows st_intersects
 
 
 #####
