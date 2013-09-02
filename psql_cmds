@@ -21,7 +21,7 @@ psql -d template_postgis -f /usr/share/postgresql/9.1/contrib/postgis-2.0/spatia
 # owne dby current user
 
 createdb farm -T template_postgis
-psql famrs
+psql farm
 
 # create farmer table
 
@@ -108,6 +108,32 @@ ALTER TABLE pads ADD PRIMARY KEY(pid);
 
 
 
+
+
 # put obs into observations
 INSERT INTO observations SELECT o.dat as date, p.fid, p.pid,o.cover, o.notes, o.the_geom FROM paddocks p, obs o WHERE ST_INTERSECTS(p.geom, o.the_geom);
+
+
+
+######################
+### new db - from shape file loaded via shp
+###################
+# better to create colum in postgres 
+
+shp2pgsql -s 3111 -d ~/mapping/shp/juc_farms | psql -d farms
+
+psql farm
+
+ALTER TABLE juc_farms DROP COLUMN gid;
+
+ALTER TABLE juc_farms ADD COLUMN fid int;
+
+ALTER TABLE juc_farms ADD FOREIGN KEY(fid) references farmers(fid);
+
+ALTER TABLE juc_farms ADD COLUMN pid int;
+
+
+SELECT ST_SRID(geom) FROM paddocks ;
+
+
 

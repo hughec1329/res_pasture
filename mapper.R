@@ -35,14 +35,15 @@ con <- dbConnect(drv, dbname="farms")
 # write table to postgis
 dbWriteTable(con,'obs',rest,row.names = F)
 # add spatial points
-dbGetQuery(con,'ALTER TABLE obs ADD COLUMN the_geom GEOGRAPHY;')
-dbGetQuery(con,"UPDATE obs SET the_geom = ST_GeometryFromText('POINT(' || lon || ' ' || lat || ')',4326)")
+dbGetQuery(con,'ALTER TABLE obs ADD COLUMN geom GEOMETRY;')
+dbGetQuery(con,"UPDATE obs SET geom = ST_GeometryFromText('POINT(' || lon || ' ' || lat || ')',4326)") # have to import as long lat
+dbGetQuery(con,"UPDATE obs SET geom = ST_Transform(geom, 3111)") # then transform to projected
 dbGetQuery(con,'ALTER TABLE obs DROP COLUMN lat;')
 dbGetQuery(con,'ALTER TABLE obs DROP COLUMN lon;')
 # do spatial join.
-out = dbGetQuery(con, 'SELECT s.dat as date, p.fid, p.pid, s.cover, s.notes FROM farm_tojizz p, obs s WHERE ST_INTERSECTS(p.geom,s.the_geom) ORDER BY pid;')
+out = dbGetQuery(con, 'SELECT s.dat as date, p.fid, p.pid, s.cover, s.notes FROM juc_farms p, obs s WHERE ST_INTERSECTS(p.geom,s.geom) ORDER BY pid;')
 write.csv(out,file = paste(Sys.Date(),unique(out$fid), 'obs', sep = '_'),row.names = F)
-dbGetQuery(con, 'INSERT INTO observations SELECT s.dat as date, p.fid, p.pid, s.cover, s.notes, s.the_geom FROM paddocks p, obs s WHERE ST_INTERSECTS(p.geom,s.the_geom) ORDER BY pid;')
+dbGetQuery(con, 'INSERT INTO observations SELECT s.dat as date, p.fid, p.pid, s.cover, s.notes, s.geom FROM juc_farms p, obs s WHERE ST_CONTAINS(p.geom,s.geom) ORDER BY pid;')
 dbGetQuery(con, 'DROP TABLE obs')
 #check results - need to do this before write DB?
 print(ifelse(nrow(out) == nrow(rest),paste('succesfully imported',nrow(rest),'paddock observations'), 'WARNING: some paddocks not matched'))
