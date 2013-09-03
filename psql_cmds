@@ -42,23 +42,18 @@ geom geography)
 
 CREATE TABLE observations (
 date TIMESTAMP WITH TIME ZONE not null,
+obsno int not null,
 fid int references farmers(fid) not null,
-pid int references pads(pid) not null,
+pid int references paddocks(pid) not null,
 cover int,
-notes varchar(100),
-the_geom geography)
+notes varchar(100))
 ;
+
+SELECT AddGeometryColumn('observations', 'geom', '3111', 'MULTIPOINT',2);
+
 
 INSERT INTO 	farmers (fid,name,address,area,notes)
 		values (1003,'trevor and leigh indian', '97 ocean bvld, Jan Juc', 4000, 'useless dog called doug');
-
-SELECT * FROM farmers;	
-
-INSERT INTO 	paddocks	(fid, pid, area, cover, notes)
-		values		(1003, 003, 4.3,2400,'creek paddock');
-
-INSERT INTO 	observations 	(fid, pid, cover, notes)
-		values		(1003, 003, 2400, 'needs spraying');
 
 # in shell
 createlang plpgsql farms
@@ -94,17 +89,21 @@ SELECT o.dat as date, p.fid, p.pid,o.cover, o.notes, o.the_geom FROM pads p, obs
 
 
 #####
-## fix table structure
+## fix table structure from import
 #
 #####
 
-CREATE TABLE pads AS SELECT cast(fid as int), cast(pid as int),area,cast(cover as int), notes, geom from farm_tojizz ;
+shp2pgsql -s 3111 -d ~/mapping/shp/juc_farms | psql -d farm
+
+CREATE TABLE paddocks AS SELECT cast(fid as int), cast(pid as int),area,cast(cover as int), notes, geom from juc_farms;
 
 # add fkey constraints
-ALTER TABLE pads ADD FOREIGN KEY(fid) REFERENCES farmers(fid);
+ALTER TABLE paddocks ADD FOREIGN KEY(fid) REFERENCES farmers(fid);
 
 # add pkey constraints
-ALTER TABLE pads ADD PRIMARY KEY(pid);
+ALTER TABLE paddocks ADD PRIMARY KEY(pid);
+# update area
+UPDATE paddocks SET area= st_area(geom)/1000;
 
 
 

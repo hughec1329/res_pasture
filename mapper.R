@@ -8,6 +8,7 @@
 
 # read in json and see how we did
 library(RCurl)
+library(reshape2)
 library(rjson)
 library(RPostgreSQL)
 id = '01c1d934-696f-461d-b486-a7eaec126a8c' # form id for 'survey' i
@@ -57,14 +58,16 @@ dbGetQuery(con, 'DROP TABLE obs')
 print(ifelse(nrow(out) == nrow(rest),paste('succesfully imported',nrow(rest),'paddock observations'), 'WARNING: some paddocks not matched'))
 
 int = dbGetQuery(con, 'select obsno, pid ,ST_WITHIN(o.geom,p.geom) as inside from obs o,juc_farms p;')
-success = dcast(int,obsno ~ .,sum)
+success = dcast(int,obsno ~ ...,sum)
+multipad = apply(success[,-1],2,sum) 
+multiobs = apply(success[,-1],1,sum) 
+print( paste('observations not falling within paddock: ' ,paste(which(multiobs == 0),sep = ',', collapse =  ' ')))
+print( paste('observations matching multiple paddocks: ' ,paste(which(multipad > 1),sep = ',', collapse =  ' ')))
+print( paste('paddocks with multiple observations    : ' ,paste(which(multiobs > 1),sep = ',', collapse =  ' ')))
+print(paste('successfuly matched observations       : ' ,paste(which(multiobs == 1),sep = ',', collapse =  ' ')))
 
-print(paste('succes observations: ' ,paste(success$obsno[success[,2] == 1],sep = ',', collapse =  ' ')))
-print( paste('missed observations: ' ,paste(success$obsno[success[,2] == 0],sep = ',', collapse =  ' ')))
-print( paste('double observations: ' ,paste(success$obsno[success[,2] > 1],sep = ',', collapse =  ' ')))
 
-
-dbGetQuery(con, 'SELECT select obsno, pid ,ST <- DISTANCE(o.geom,p.geom) as dist from obs o,juc_farms p ORDER BY dist;')
+dbGetQuery(con, 'SELECT obsno, pid ,ST_DISTANCE(o.geom,p.geom) as dist from obs o,juc_farms p ORDER BY dist;')
 
 # check for double observations
 if(sum(duplicated(out$pid)) != 0){
