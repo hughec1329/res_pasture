@@ -49,7 +49,7 @@
 - then how store multiple repeated observations for each paddock?? PostGIS?
 
 #POSTGIS
-- set up succesfully alahttps://the-free-qgis-training-manual.readthedocs.org/en/latest/postgis/index.html
+- set up succesfully ala https://the-free-qgis-training-manual.readthedocs.org/en/latest/postgis/index.html
 
 ## DB design
 - DB design - 
