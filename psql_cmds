@@ -34,7 +34,8 @@ notes varchar(100))
 
 # better to create from shapefile.
 CREATE TABLE paddocks (fid int references farmers(fid) not null,
-pid int not null primary key,
+pid int not null,
+fpid int not null primary key,
 area int,
 cover int,
 notes varchar(100),
@@ -102,26 +103,27 @@ shp2pgsql -s 3111 -d ~/mapping/shp/juc_farms | psql -d farm
 DROP TABLE paddocks_bak;
 SELECT * INTO paddocks_bak FROM paddocks;
 CREATE TABLE paddocks_new AS SELECT cast(fid as int), cast(pid as int),area, cast(cover as int), notes, geom from juc_farms;
-alter table paddocks_new add column fpid int;
-update paddocks_new set fpid = cast(fid::text || pid::text as int);
 DROP TABLE juc_farms;
-insert 
-UPDATE paddocks p set geom = n.geom from paddocks_new WHERE p.pid = n.pid AND p.fid = n.fid;
+UPDATE paddocks p set geom = n.geom from paddocks_new WHERE p.fpid = n.fpid;	# update old paddocks
 # need to look for new paddocks -> match where pid and fid not there? - need to create fidpid.
-INSERT 
+
+
+# find new paddocks
+ALTER TABLE paddocks_new ADD COLUMN date TIMESTAMP;
+UPDATE paddocks_new SET date = NOW();
+ALTER TABLE paddocks_new ADD COLUMN fpid INT;
+UPDATE paddocks SET fpid = cast(fid::text || pid::text as int);
+UPDATE paddocks_new SET fpid = cast(fid::text || pid::text as int);
+
+INSERT INTO paddocks (SELECT * FROM paddocks_new where fpid NOT IN (select fpid FROM paddocks));
+
+
 UPDATE paddocks set date=NOW() WHERE date = '';
 UPDATE paddocks SET area= st_area(geom)/1000;
 
-# find new paddocks
-alter table paddocks add column fpid int;
-update paddocks set fpid = cast(fid::text || pid::text as int);
+INSERT INTO paddocks SELECT * FROM paddocks_new where fpid IN (select fpid FROM paddocks);	# cant have primary key on pid - try on fpid?
 
-SELECT n.* FROM paddocks_new n, paddocks p where NOT (n.fpid = ANY(p.fpid));
-## need to set triggers too.
-#
-# trigger play
-#
-# update
+# update old paddocks with new observations
 
 update paddocks p set cover = o.cover, notes = o.notes, date = o.date from observations o where p.pid = o.pid AND p.fid = o.fid AND o.date > p.date;
 
