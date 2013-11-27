@@ -79,3 +79,7 @@ FarmerID  |  paddockID  |  date  |  level  |  notes
 ### styling
 - best with transperent polygon and no bakcgrond - then can have underlayer of gogle earth
 - style.mss to have conditional color and labels of paddock id, (paddock cover)
+- 
+
+#  canned devices to measure pasture - mayne used in maffra?
+-http://au.c-dax.co.nz/index.php?page=shop/flypage&product_id=17363&parent_cats=8fb6a98cdda3e6ee46d4a736f8efb89d&PHPSESSID=s5nu15kjuko73h9nvqec76lj30
